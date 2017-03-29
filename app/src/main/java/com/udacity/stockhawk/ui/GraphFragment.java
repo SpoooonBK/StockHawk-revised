@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private TextView mTextViewSymbolHeader;
     private Spinner mSpinner;
     private TextView mTextViewPercentageChange;
+    private TextView mTextViewStartValue;
+    private TextView mTextViewEndValue;
 
 
     @Override
@@ -66,12 +69,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mSpinner.setOnItemSelectedListener(this);
 
         mTextViewPercentageChange = (TextView) rootView.findViewById(R.id.text_percentage_change);
-
-
-
-
-
-        Timber.v("Fragment inflated");
+        mTextViewStartValue = (TextView) rootView.findViewById(R.id.text_start_value);
+        mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
 
 
         return rootView;
@@ -99,10 +98,21 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     public void updateGraph(final String symbol, @Nullable String dateString){
 
-        Date date = mStockHistory.getDateFromDateString(dateString);
+        Observable<String> observable = null;
 
 
-        Observable<String> observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, null));
+        if(dateString != null){
+            Date date = mStockHistory.getDateFromDateString(dateString);
+            observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, date));
+        } else {
+            observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, null));
+        }
+
+
+
+
+
+
 
         Subscription subscription = observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -129,8 +139,20 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                         mLineChart.setBackgroundColor(Color.WHITE);
                         mLineChart.invalidate();
 
-                        float startValue = entries.get(0).getY();
-                        float endValue = entries.get(entries.size()-1).getY();
+                        Float startValue = entries.get(0).getY();
+                        Float endValue = entries.get(entries.size()-1).getY();
+
+
+                        mTextViewStartValue.setText("$" + startValue.toString());
+                        mTextViewEndValue.setText("$" + endValue.toString());
+
+                        if(endValue < startValue){
+                            mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
+                            mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
+                        }else if (endValue > startValue){
+                                mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
+                                mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
+                        }
 
                         setPercentageChange(startValue,endValue);
                     }
@@ -154,12 +176,14 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         percentageChange= (gain/startValue)*100;
         double round = (double) Math.round(percentageChange *100)/100;
 
-        mTextViewPercentageChange.setText("Change: " + round);
+        mTextViewPercentageChange.setText(round + "%");
 
     }
 
     //The spinner will show the week in which data is available
     private void setSpinner(){
+
+
         String[] dates = mStockHistory.getHistoryDateArray();
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, dates);

@@ -95,8 +95,8 @@ public class StockHistory {
 //                    } else return -1;
 //                }
 //            });
-            Collections.reverse(entries);
         }
+        Collections.reverse(entries);
         return entries;
     }
 
@@ -105,6 +105,7 @@ public class StockHistory {
         mDateList.add(DateRangeFactory.LAST_THIRTY_DAYS);
         mDateList.add(DateRangeFactory.LAST_SEVEN_DAYS);
         mDateList.add(DateRangeFactory.YEAR_TO_DATE);
+        mDateList.add(DateRangeFactory.Q_1);
         for(Entry entry: mFullHistoryData){
             long dateInMillis = (long) entry.getX();
             String date = DateConverter.getMonthDateYearFormat(dateInMillis);

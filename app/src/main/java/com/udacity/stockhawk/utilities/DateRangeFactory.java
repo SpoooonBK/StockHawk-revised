@@ -14,6 +14,10 @@ public class DateRangeFactory {
     public static final String LAST_SEVEN_DAYS = "Last Seven Days";
     public static final String LAST_THIRTY_DAYS = "Last Thirty Days";
     public static final String YEAR_TO_DATE = "Year-to-Date";
+    public static final String Q_1 = "Q1";
+    public static final String Q_2 = "Q2";
+    public static final String Q_3 = "Q3";
+    public static final String Q_4 = "Q4";
     public static final String YEAR = "Year";
     public static final String JAN = "January";
     public static final String FEB = "February";
@@ -49,7 +53,8 @@ public class DateRangeFactory {
 
             case YEAR_TO_DATE:{
                 Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, Calendar.JANUARY, 1);
+                cal.set(Calendar.MONTH, Calendar.JANUARY);
+                cal.set(Calendar.DATE, 1);
                 startingDate = cal.getTime();
                 break;
             }
@@ -62,6 +67,26 @@ public class DateRangeFactory {
                 }
                 break;
             }
+
+            case Q_1: {
+                //Set starting and ending dates
+                Calendar Q1Start = Calendar.getInstance();
+                Q1Start.set(Calendar.MONTH, Calendar.JANUARY);
+                Q1Start.set(Calendar.DATE, 1);
+
+                Calendar Q1End = Calendar.getInstance();
+                Q1End.set(Calendar.MONTH, Calendar.MARCH);
+                Q1End.set(Calendar.DATE, 31);
+
+                //Check if Calendar Date falls after today's date
+                if(Q1End.compareTo(today)>0){
+                    Q1Start.set(Calendar.YEAR, -1);
+                    Q1End.set(Calendar.YEAR, -1);
+                }
+
+                return new DateRange(Q1Start.getTime(), Q1Start.getTime());
+            }
+
 
             default:{
                 if(date == null){
