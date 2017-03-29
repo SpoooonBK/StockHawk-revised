@@ -5,6 +5,8 @@ import android.util.Log;
 import com.github.mikephil.charting.data.Entry;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.utilities.DateConverter;
+import com.udacity.stockhawk.utilities.DateRange;
+import com.udacity.stockhawk.utilities.DateRangeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,6 +101,10 @@ public class StockHistory {
     }
 
     private void setDates(){
+
+        mDateList.add(DateRangeFactory.LAST_THIRTY_DAYS);
+        mDateList.add(DateRangeFactory.LAST_SEVEN_DAYS);
+        mDateList.add(DateRangeFactory.YEAR_TO_DATE);
         for(Entry entry: mFullHistoryData){
             long dateInMillis = (long) entry.getX();
             String date = DateConverter.getMonthDateYearFormat(dateInMillis);

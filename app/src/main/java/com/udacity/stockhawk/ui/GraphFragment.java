@@ -22,6 +22,7 @@ import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.model.StockHistory;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.utilities.DateRangeFactory;
 
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private LineChart mLineChart;
     private TextView mTextViewSymbolHeader;
     private Spinner mSpinner;
+    private TextView mTextViewPercentageChange;
 
 
     @Override
@@ -62,6 +64,9 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         mSpinner = (Spinner) rootView.findViewById(R.id.graph_spinner);
         mSpinner.setOnItemSelectedListener(this);
+
+        mTextViewPercentageChange = (TextView) rootView.findViewById(R.id.text_percentage_change);
+
 
 
 
@@ -97,7 +102,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         Date date = mStockHistory.getDateFromDateString(dateString);
 
 
-        Observable<String> observable = QuoteSyncJob.getHistoryStringObservable(symbol, date);
+        Observable<String> observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, null));
 
         Subscription subscription = observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -116,13 +121,6 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                     public void onNext(String history) {
 
                         List<Entry> entries = mStockHistory.parseHistoryString(history);
-//                        List<Entry> entries = new ArrayList<Entry>();
-//                        entries.add( new Entry(1F, 46.400002F));
-//                        entries.add(new Entry(2F, 46.400002F));
-//                        entries.add(new Entry(3F, 46.599998F));
-//                        entries.add(new Entry(4F, 46.060001F));
-//                        entries.add(new Entry(5F, 45.77F));
-
                         LineDataSet lineDataSet = new LineDataSet(entries, symbol);
                         lineDataSet.setColor(Color.BLACK);
                         LineData lineData = new LineData(lineDataSet);
@@ -130,13 +128,33 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                         mLineChart.getXAxis().setValueFormatter(new GraphValueFormatter());
                         mLineChart.setBackgroundColor(Color.WHITE);
                         mLineChart.invalidate();
+
+                        float startValue = entries.get(0).getY();
+                        float endValue = entries.get(entries.size()-1).getY();
+
+                        setPercentageChange(startValue,endValue);
                     }
+
+
 
                 });
 
 
 
 
+
+    }
+
+    private void setPercentageChange(float startValue, float endValue) {
+
+
+        double percentageChange;
+
+        double gain = endValue - startValue;
+        percentageChange= (gain/startValue)*100;
+        double round = (double) Math.round(percentageChange *100)/100;
+
+        mTextViewPercentageChange.setText("Change: " + round);
 
     }
 
