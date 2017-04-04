@@ -40,5 +40,14 @@
     <string name="end_value">End Value</string>
     <string name="percent_change">% Change</string>
 
+    <!-- Spinner strings -->
+    <string name="last_thirty_days" translatable="true">Last 30 Days</string>
+    <string name="last_seven_days" translatable="true">Last 7 Days</string>
+    <string name="year_to_date" translatable="true">Year-to-Date</string>
+    <string name="q1" translatable="true">Q1</string>
+    <string name="q2" translatable="true">Q2</string>
+    <string name="q3" translatable="true">Q3</string>
+    <string name="q4" translatable="true">Q4</string>
+
 
 </resources>

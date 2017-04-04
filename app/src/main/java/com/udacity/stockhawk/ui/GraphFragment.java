@@ -2,6 +2,7 @@ package com.udacity.stockhawk.ui;
 
 import android.app.Fragment;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,8 +24,11 @@ import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.model.StockHistory;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.utilities.DateRange;
 import com.udacity.stockhawk.utilities.DateRangeFactory;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -96,22 +100,23 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewSymbolHeader.setText(symbol);
     }
 
-    public void updateGraph(final String symbol, @Nullable String dateString){
+    public void updateGraph(final String symbol, String dateString){
 
         Observable<String> observable = null;
 
+        DateRangeFactory dateRangeFactory = new DateRangeFactory(getActivity());
 
-        if(dateString != null){
-            Date date = mStockHistory.getDateFromDateString(dateString);
-            observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, date));
-        } else {
-            observable = QuoteSyncJob.getHistoryStringObservable(symbol, DateRangeFactory.getDateRange(dateString, null));
-        }
+        DateRange dateRange = null;
 
 
+            if(dateString.startsWith("Q")){   //get the quarter if chosen
+                String quarter = dateString.substring(0, 1);
+                dateRange = dateRangeFactory.getDateRange(quarter);
+            } else{
+                dateRange = dateRangeFactory.getDateRange(dateString);
+            }
 
-
-
+            observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
 
 
         Subscription subscription = observable.subscribeOn(Schedulers.io())
@@ -184,11 +189,66 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private void setSpinner(){
 
 
-        String[] dates = mStockHistory.getHistoryDateArray();
+        List<String> dateList = new ArrayList<>();
+        dateList.add(getString(R.string.last_thirty_days));
+        dateList.add(getString(R.string.last_seven_days));
+        dateList.add(getString(R.string.year_to_date));
+        dateList.addAll(setAvailableQuarters());
+
+        String[] dates = dateList.toArray(new String[dateList.size()]);
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, dates);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(arrayAdapter);
+
+    }
+
+
+    private List<String> setAvailableQuarters(){
+        Calendar today = Calendar.getInstance();
+
+        List<String> quarters = new ArrayList<>();
+
+
+
+        Calendar quarter1End = Calendar.getInstance();
+        quarter1End.set(Calendar.MONTH, Calendar.MARCH);
+        quarter1End.set(Calendar.DATE, 31);
+        if(quarter1End.compareTo(today)> 0){
+            quarter1End.add(Calendar.YEAR, -1);
+        }
+
+
+
+        Calendar quarter2End = Calendar.getInstance();
+        quarter2End.set(Calendar.MONTH, Calendar.JUNE);
+        quarter2End.set(Calendar.DATE, 30);
+        if(quarter2End.compareTo(today)> 0){
+            quarter2End.add(Calendar.YEAR, -1);
+        }
+
+        Calendar quarter3End = Calendar.getInstance();
+        quarter3End.set(Calendar.MONTH, Calendar.SEPTEMBER);
+        quarter3End.set(Calendar.DATE, 30);
+        if(quarter3End.compareTo(today)> 0){
+            quarter3End.add(Calendar.YEAR, -1);
+        }
+
+
+        Calendar quarter4End = Calendar.getInstance();
+        quarter4End.set(Calendar.MONTH, Calendar.DECEMBER);
+        quarter4End.set(Calendar.DATE, 31);
+        if(quarter4End.compareTo(today)> 0){
+            quarter4End.add(Calendar.YEAR, -1);
+        }
+
+
+        quarters.add("Q1 " + quarter1End.get(Calendar.YEAR));
+        quarters.add("Q2 " + quarter2End.get(Calendar.YEAR));
+        quarters.add("Q3 " + quarter3End.get(Calendar.YEAR));
+        quarters.add("Q4 " + quarter4End.get(Calendar.YEAR));
+
+        return quarters;
 
     }
 

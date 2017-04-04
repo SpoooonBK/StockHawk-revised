@@ -1,6 +1,9 @@
 package com.udacity.stockhawk.utilities;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
+
+import com.udacity.stockhawk.R;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,97 +14,105 @@ import java.util.Date;
 
 public class DateRangeFactory {
 
-    public static final String LAST_SEVEN_DAYS = "Last Seven Days";
-    public static final String LAST_THIRTY_DAYS = "Last Thirty Days";
-    public static final String YEAR_TO_DATE = "Year-to-Date";
-    public static final String Q_1 = "Q1";
-    public static final String Q_2 = "Q2";
-    public static final String Q_3 = "Q3";
-    public static final String Q_4 = "Q4";
-    public static final String YEAR = "Year";
-    public static final String JAN = "January";
-    public static final String FEB = "February";
 
-    public static DateRange getDateRange(String rangeConstant, @Nullable Date date){
+    public String LAST_SEVEN_DAYS;
+    public String LAST_THIRTY_DAYS;
+    public String YEAR_TO_DATE;
+    public String Q_1;
+    public String Q_2;
+    public String Q_3;
+    public String Q_4;
+
+
+    public DateRangeFactory(Context context) {
+
+        LAST_SEVEN_DAYS = context.getString(R.string.last_seven_days);
+        LAST_THIRTY_DAYS = context.getString(R.string.last_thirty_days);
+        Q_1 = context.getString(R.string.q1);
+        Q_2 = context.getString(R.string.q2);
+        Q_3 = context.getString(R.string.q3);
+        Q_4 = context.getString(R.string.q4);
+    }
+
+    public DateRange getDateRange(String rangeConstant){
+
+
+
 
         Calendar today = Calendar.getInstance();
+        Calendar quarterStart = Calendar.getInstance();
+        Calendar quarterEnd = Calendar.getInstance();
+
 
         Date startingDate = null;
-        Date endDate = null;
+        Date endDate = new Date(today.getTimeInMillis());
 
-        if(date == null){
-            endDate = new Date(today.getTimeInMillis());
-        }
 
-        switch (rangeConstant){
+        //using if else instead of switch in order to use strings.xml values as constants
+        if (rangeConstant.equals(LAST_SEVEN_DAYS)) {
 
-            case LAST_SEVEN_DAYS:{
-                if(date == null){
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.DATE, -7);
-                    startingDate = cal.getTime();
-                } else {
-                    startingDate = date;
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(date);
-                    cal.add(Calendar.DATE, 7);
-                    endDate = cal.getTime();
-
-                }
-                break;
-            }
-
-            case YEAR_TO_DATE:{
                 Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.MONTH, Calendar.JANUARY);
-                cal.set(Calendar.DATE, 1);
+                cal.add(Calendar.DATE, -7);
                 startingDate = cal.getTime();
-                break;
+
+        } else if (rangeConstant.equals(YEAR_TO_DATE)) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.MONTH, Calendar.JANUARY);
+            cal.set(Calendar.DATE, 1);
+            startingDate = cal.getTime();
+
+        } else if (rangeConstant.equals(LAST_THIRTY_DAYS)) {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DATE, -30);
+                startingDate = cal.getTime();
+
+        } else if (rangeConstant.equals(Q_1)) {
+            quarterStart.set(Calendar.MONTH, Calendar.JANUARY);
+            quarterStart.set(Calendar.DATE, 1);
+            quarterEnd.set(Calendar.MONTH, Calendar.MARCH);
+            quarterEnd.set(Calendar.DATE, 31);
+            if (quarterEnd.compareTo(today) > 0) {
+                quarterStart.add(Calendar.YEAR, -1);
+                quarterEnd.add(Calendar.YEAR, -1);
             }
+            startingDate = quarterStart.getTime();
+            endDate = quarterEnd.getTime();
 
-            case LAST_THIRTY_DAYS: {
-                if(date == null){
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.DATE, -30);
-                    startingDate = cal.getTime();
-                }
-                break;
+        } else if (rangeConstant.equals(Q_2)) {
+            quarterStart.set(Calendar.MONTH, Calendar.APRIL);
+            quarterStart.set(Calendar.DATE, 1);
+            quarterEnd.set(Calendar.MONTH, Calendar.JUNE);
+            quarterEnd.set(Calendar.DATE, 30);
+            if (quarterEnd.compareTo(today) > 0) {
+                quarterStart.add(Calendar.YEAR, -1);
+                quarterEnd.add(Calendar.YEAR, -1);
             }
+            startingDate = quarterStart.getTime();
+            endDate = quarterEnd.getTime();
 
-            case Q_1: {
-                //Set starting and ending dates
-                Calendar Q1Start = Calendar.getInstance();
-                Q1Start.set(Calendar.MONTH, Calendar.JANUARY);
-                Q1Start.set(Calendar.DATE, 1);
-
-                Calendar Q1End = Calendar.getInstance();
-                Q1End.set(Calendar.MONTH, Calendar.MARCH);
-                Q1End.set(Calendar.DATE, 31);
-
-                //Check if Calendar Date falls after today's date
-                if(Q1End.compareTo(today)>0){
-                    Q1Start.set(Calendar.YEAR, -1);
-                    Q1End.set(Calendar.YEAR, -1);
-                }
-
-                return new DateRange(Q1Start.getTime(), Q1Start.getTime());
+        } else if (rangeConstant.equals(Q_3)) {
+            quarterStart.set(Calendar.MONTH, Calendar.JULY);
+            quarterStart.set(Calendar.DATE, 1);
+            quarterEnd.set(Calendar.MONTH, Calendar.SEPTEMBER);
+            quarterEnd.set(Calendar.DATE, 30);
+            if (quarterEnd.compareTo(today) > 0) {
+                quarterStart.add(Calendar.YEAR, -1);
+                quarterEnd.add(Calendar.YEAR, -1);
             }
+            startingDate = quarterStart.getTime();
+            endDate = quarterEnd.getTime();
 
-
-            default:{
-                if(date == null){
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.DATE, -7);
-                    startingDate = cal.getTime();
-                } else {
-                    startingDate = date;
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(date);
-                    cal.add(Calendar.DATE, 7);
-                    endDate = cal.getTime();
-                }
+        } else if (rangeConstant.equals(Q_4)) {
+            quarterStart.set(Calendar.MONTH, Calendar.OCTOBER);
+            quarterStart.set(Calendar.DATE, 1);
+            quarterEnd.set(Calendar.MONTH, Calendar.DECEMBER);
+            quarterEnd.set(Calendar.DATE, 31);
+            if (quarterEnd.compareTo(today) > 0) {
+                quarterStart.add(Calendar.YEAR, -1);
+                quarterEnd.add(Calendar.YEAR, -1);
             }
-
+            startingDate = quarterStart.getTime();
+            endDate = quarterEnd.getTime();
         }
 
 

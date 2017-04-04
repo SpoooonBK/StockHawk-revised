@@ -74,7 +74,7 @@ public final class QuoteSyncJob {
 
     public static String getHistory(String symbol, DateRange dateRange){
 
-
+        Timber.v("Requesting quotes: " + symbol + dateRange.toString());
 
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();

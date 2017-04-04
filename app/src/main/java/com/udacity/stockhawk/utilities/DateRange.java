@@ -1,6 +1,5 @@
 package com.udacity.stockhawk.utilities;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -8,27 +7,35 @@ import java.util.Date;
  */
 
 public class DateRange {
-    private Date to;
-    private Date from;
+    private Date mTo;
+    private Date mFrom;
 
     public DateRange(Date from, Date to) {
-        this.to = to;
-        this.from = from;
+        this.mTo = to;
+        this.mFrom = from;
     }
 
     public Date getTo() {
-        return to;
+        return mTo;
     }
 
     public void setTo(Date to) {
-        this.to = to;
+        this.mTo = to;
     }
 
     public Date getFrom() {
-        return from;
+        return mFrom;
     }
 
     public void setFrom(Date from) {
-        this.from = from;
+        this.mFrom = from;
+    }
+
+    @Override
+    public String toString() {
+
+        return "Date Range : " + DateConverter.getMonthDateYearFormat(getFrom().getTime()) + " - "
+                + DateConverter.getMonthDateYearFormat(getTo().getTime());
+
     }
 }
