@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -29,6 +30,8 @@ import com.udacity.stockhawk.utilities.DateRangeFactory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -77,6 +80,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
 
 
+
+
         return rootView;
     }
 
@@ -100,7 +105,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewSymbolHeader.setText(symbol);
     }
 
-    public void updateGraph(final String symbol, String dateString){
+    public void updateGraph(final String symbol, final String dateString){
 
         Observable<String> observable = null;
 
@@ -110,7 +115,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
             if(dateString.startsWith("Q")){   //get the quarter if chosen
-                String quarter = dateString.substring(0, 1);
+                String quarter = dateString.substring(0, 2);
                 dateRange = dateRangeFactory.getDateRange(quarter);
             } else{
                 dateRange = dateRangeFactory.getDateRange(dateString);
@@ -141,6 +146,9 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                         LineData lineData = new LineData(lineDataSet);
                         mLineChart.setData(lineData);
                         mLineChart.getXAxis().setValueFormatter(new GraphValueFormatter());
+                        Description description = new Description();
+                        description.setText(dateString);
+                        mLineChart.setDescription(description);
                         mLineChart.setBackgroundColor(Color.WHITE);
                         mLineChart.invalidate();
 
@@ -247,6 +255,21 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         quarters.add("Q2 " + quarter2End.get(Calendar.YEAR));
         quarters.add("Q3 " + quarter3End.get(Calendar.YEAR));
         quarters.add("Q4 " + quarter4End.get(Calendar.YEAR));
+
+        // Sorts quarters into reverse chronological order
+        Collections.sort(quarters, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+
+                int o1Year = Integer.valueOf(o1.substring(3));
+                int o2Year = Integer.valueOf(o2.substring(3));
+                if(o1Year == o2Year){
+                    return o2.substring(1, 2).compareTo(o1.substring(1, 2));
+                } else {
+                    return o2.substring(3).compareTo(o1.substring(3));
+                }
+            }
+        });
 
         return quarters;
 

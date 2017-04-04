@@ -28,6 +28,7 @@ public class DateRangeFactory {
 
         LAST_SEVEN_DAYS = context.getString(R.string.last_seven_days);
         LAST_THIRTY_DAYS = context.getString(R.string.last_thirty_days);
+        YEAR_TO_DATE = context.getString(R.string.year_to_date);
         Q_1 = context.getString(R.string.q1);
         Q_2 = context.getString(R.string.q2);
         Q_3 = context.getString(R.string.q3);
