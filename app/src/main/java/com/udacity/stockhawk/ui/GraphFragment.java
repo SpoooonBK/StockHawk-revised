@@ -1,13 +1,12 @@
 package com.udacity.stockhawk.ui;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import rx.Observable;
@@ -40,7 +38,6 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * Created by spoooon on 3/23/17.
@@ -51,12 +48,23 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     private StockHistory mStockHistory;
     private LineChart mLineChart;
-    private TextView mTextViewSymbolHeader;
     private Spinner mSpinner;
     private TextView mTextViewPercentageChange;
     private TextView mTextViewStartValue;
     private TextView mTextViewEndValue;
+    private ProgressDialog mProgress;
+    private Bundle mSavedInstanceState;
+    private String mSymbol;
+    private final String SPINNER_POSITION = "spinner_item";
+    private int mLastSpinnerItemSelected;
 
+    public void setSymbol(String symbol) {
+        mSymbol = symbol;
+    }
+
+    public void setSpinner(Spinner spinner) {
+        mSpinner = spinner;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,13 +75,13 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
+        setHasOptionsMenu(true);
+
+        mSavedInstanceState = savedInstanceState;
+
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
         mLineChart = (LineChart) rootView.findViewById(R.id.line_chart);
-        mTextViewSymbolHeader = (TextView) rootView.findViewById(R.id.text_header_stock_symbol);
 
-
-        mSpinner = (Spinner) rootView.findViewById(R.id.graph_spinner);
-        mSpinner.setOnItemSelectedListener(this);
 
         mTextViewPercentageChange = (TextView) rootView.findViewById(R.id.text_percentage_change);
         mTextViewStartValue = (TextView) rootView.findViewById(R.id.text_start_value);
@@ -84,6 +92,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         return rootView;
     }
+
+
 
     //Sets the stockhistory, spinner and textView text
     public void buildDisplay(String symbol) {
@@ -101,8 +111,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         cursor.moveToFirst();
         String history = cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_HISTORY));
         mStockHistory = new StockHistory(symbol, history);
-        setSpinner();
-        mTextViewSymbolHeader.setText(symbol);
+        populateSpinner();
     }
 
     public void updateGraph(final String symbol, final String dateString){
@@ -130,6 +139,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                     @Override
                     public void onCompleted() {
 
+                        mProgress.hide();
+                        mSavedInstanceState = null; //nulls Bundle so that progress will dialog shows again
                     }
 
                     @Override
@@ -194,7 +205,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
     //The spinner will show the week in which data is available
-    private void setSpinner(){
+    private void populateSpinner(){
 
 
         List<String> dateList = new ArrayList<>();
@@ -208,6 +219,12 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, dates);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(arrayAdapter);
+        mSpinner.setOnItemSelectedListener(this);
+
+        //Resets spinner position to last position on rotation
+        if(mSavedInstanceState != null){
+            mSpinner.setSelection(mSavedInstanceState.getInt(SPINNER_POSITION));
+        }
 
     }
 
@@ -277,11 +294,32 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+
+       //show progress
+        mProgress = new ProgressDialog(getActivity());
+        mProgress.setMessage(getString(R.string.getting_quotes));
+        mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress.setIndeterminate(true);
+
+        if(mSavedInstanceState != null){
+            mProgress.hide(); //keeps the progress dialog hidden on rotation
+        }else mProgress.show();
+
+        mLastSpinnerItemSelected = position;
+
         updateGraph(mStockHistory.getSymbol(), parent.getItemAtPosition(position).toString());
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(SPINNER_POSITION, mLastSpinnerItemSelected);
     }
 }
