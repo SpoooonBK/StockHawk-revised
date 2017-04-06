@@ -5,13 +5,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context="com.udacity.stockhawk.ui.DetailActivity">
 
-    <fragment
-        android:name="com.udacity.stockhawk.ui.GraphFragment"
+    <FrameLayout
+        android:id="@+id/graph_fragment_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/fragment_graph"
-        tools:layout="@layout/fragment_graph"/>
+        android:layout_height="match_parent"/>
+
+    <!--<fragment-->
+        <!--android:name="com.udacity.stockhawk.ui.GraphFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:id="@+id/fragment_graph"-->
+        <!--tools:layout="@layout/fragment_graph"/>-->
 
 </android.support.constraint.ConstraintLayout>

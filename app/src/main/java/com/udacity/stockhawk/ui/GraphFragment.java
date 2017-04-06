@@ -8,6 +8,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -87,6 +90,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewStartValue = (TextView) rootView.findViewById(R.id.text_start_value);
         mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
 
+        setStockHistory(mSymbol);
 
         return rootView;
     }
@@ -309,5 +313,19 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         super.onSaveInstanceState(outState);
 
         outState.putInt(SPINNER_POSITION, mLastSpinnerItemSelected);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater menuInflater = getActivity().getMenuInflater();
+        menuInflater.inflate(R.menu.detail_activity_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.spinner);
+        Spinner spinner = (Spinner) menuItem.getActionView();
+        setSpinner(spinner);
+
+        ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
+
+
+        return true;
     }
 }
