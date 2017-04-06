@@ -90,7 +90,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewStartValue = (TextView) rootView.findViewById(R.id.text_start_value);
         mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
 
-        setStockHistory(mSymbol);
+
 
         return rootView;
     }
@@ -315,17 +315,25 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         outState.putInt(SPINNER_POSITION, mLastSpinnerItemSelected);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detail_activity_menu, menu);
+        if(mSpinner == null){
+            MenuItem menuItem = menu.findItem(R.id.spinner);
+            mSpinner = (Spinner) menuItem.getActionView();
+            buildDisplay(mSymbol);
+            ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
+        }
 
-        MenuInflater menuInflater = getActivity().getMenuInflater();
-        menuInflater.inflate(R.menu.detail_activity_menu, menu);
-        MenuItem menuItem = menu.findItem(R.id.spinner);
-        Spinner spinner = (Spinner) menuItem.getActionView();
-        setSpinner(spinner);
-
-        ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
 
 
-        return true;
+
+    }
+
+
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
     }
 }

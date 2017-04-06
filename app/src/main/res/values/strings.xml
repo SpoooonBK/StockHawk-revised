@@ -52,4 +52,7 @@
     <!--Progress strings -->.
     <string name="getting_quotes" translatable="true">Getting Quotes</string>
 
+    <!--Widget -->
+    <string name="no_data" translatable="true">No Data Available</string>
+
 </resources>

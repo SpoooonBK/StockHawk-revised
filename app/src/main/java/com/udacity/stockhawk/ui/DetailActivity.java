@@ -1,6 +1,8 @@
 package com.udacity.stockhawk.ui;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.os.PersistableBundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,22 +17,38 @@ public class DetailActivity extends AppCompatActivity {
 
     public static final String SYMBOL = "symbol";
 
+    private String mSymbol;
+    private static final String DETAIL_ACTIVITY_TAG = "detail_activity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
 
-//        setContentView(R.layout.activity_detail);
 
-        GraphFragment graphFragment = new GraphFragment();
-        graphFragment.setSymbol(getIntent().getStringExtra(SYMBOL));
-        getFragmentManager().beginTransaction()
-                .add(R.id.graph_fragment_holder, graphFragment, null)
-                .show(graphFragment)
-                .addToBackStack(null)
-                .commit();
+        setContentView(R.layout.activity_detail);
 
+
+
+
+        if(savedInstanceState != null){
+           GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
+
+            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
+
+        } else {
+
+            GraphFragment graphFragment = new GraphFragment();
+            graphFragment.setArguments(getIntent().getExtras());
+            mSymbol = getIntent().getStringExtra(SYMBOL);
+            graphFragment.setSymbol(mSymbol);
+            getFragmentManager().beginTransaction()
+                    .add(R.id.fragment_placeholder, graphFragment, DETAIL_ACTIVITY_TAG )
+                    .show(graphFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
 
@@ -52,4 +70,13 @@ public class DetailActivity extends AppCompatActivity {
 //
 //        return true;
 //    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString(SYMBOL, mSymbol );
+
+
+    }
 }

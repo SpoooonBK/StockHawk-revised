@@ -36,7 +36,7 @@ import yahoofinance.quotes.stock.StockQuote;
 public final class QuoteSyncJob {
 
     private static final int ONE_OFF_ID = 2;
-    private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
@@ -59,16 +59,6 @@ public final class QuoteSyncJob {
         return observable;
     }
 
-//    public static Observable<String> getHistoryStringObservable(final String symbol, final String rangeConstant, @Nullable final Date date) {
-//
-//        Observable<String> observable = Observable.fromCallable(new Callable<String>() {
-//            @Override
-//            public String call() throws Exception {
-//                return null;
-//            }
-//        });
-//        return observable;
-//    }
 
 
 
@@ -97,14 +87,6 @@ public final class QuoteSyncJob {
                 historyBuilder.append("\n");
             }
 
-
-//            Timber.v("History length: " + history.size());
-//            for(HistoricalQuote historicalQuote: history){
-//                float timeInMillis =  (Long)historicalQuote.getDate().getTimeInMillis();
-//                float close = historicalQuote.getClose().floatValue();
-//                entries.add( new Entry(timeInMillis, close));
-//                Timber.v(historicalQuote.getSymbol() + ": " + timeInMillis + " close: " + close);
-//            }
 
             return historyBuilder.toString();
 
