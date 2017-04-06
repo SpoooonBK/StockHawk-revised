@@ -37,7 +37,7 @@ public class DetailActivity extends AppCompatActivity {
         graphFragment.setSpinner(spinner);
 
         getSupportActionBar().setTitle(stockSymbol);
-        graphFragment.buildDisplay(stockSymbol);
+        graphFragment.setStockHistory(stockSymbol);
 
         return true;
     }

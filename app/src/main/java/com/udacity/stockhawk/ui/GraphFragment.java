@@ -88,30 +88,20 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
 
 
-
-
         return rootView;
     }
 
-
-
-    //Sets the stockhistory, spinner and textView text
-    public void buildDisplay(String symbol) {
-        ContentResolver contentResolver = getActivity().getContentResolver();
-        String[] projection = {Contract.Quote.COLUMN_HISTORY};
-
-
-        Cursor cursor = contentResolver.query(
-                Contract.Quote.makeUriForStock(symbol),
-                projection,
-                null,
-                null,
-                null);
-
-        cursor.moveToFirst();
-        String history = cursor.getString(cursor.getColumnIndex(Contract.Quote.COLUMN_HISTORY));
-        mStockHistory = new StockHistory(symbol, history);
+    //Builds the display  by getting stock history and then populating the Spinner with valid date ranges
+    //This is called from Detail Activity to circumvent some timing issues when creating the fragment
+    public void buildDisplay(String symbol){
+        setStockHistory(symbol);
         populateSpinner();
+    }
+
+
+    public void setStockHistory(String symbol) {
+
+        mStockHistory = new StockHistory(symbol);
     }
 
     public void updateGraph(final String symbol, final String dateString){
@@ -152,6 +142,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                     public void onNext(String history) {
 
                         List<Entry> entries = mStockHistory.parseHistoryString(history);
+
                         LineDataSet lineDataSet = new LineDataSet(entries, symbol);
                         lineDataSet.setColor(Color.BLACK);
                         LineData lineData = new LineData(lineDataSet);
@@ -186,11 +177,9 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                 });
 
 
-
-
-
     }
 
+    //Shows the percentage change from the start value and end value during the date range for the selected stock
     private void setPercentageChange(float startValue, float endValue) {
 
 
@@ -204,7 +193,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     }
 
-    //The spinner will show the week in which data is available
+    //The spinner will display date range choices
     private void populateSpinner(){
 
 
@@ -291,12 +280,11 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         return quarters;
 
     }
-
+    //When Item is selected the graph will update with the selected date range
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-
-       //show progress
+       //show progress dialogue when making internet call
         mProgress = new ProgressDialog(getActivity());
         mProgress.setMessage(getString(R.string.getting_quotes));
         mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);

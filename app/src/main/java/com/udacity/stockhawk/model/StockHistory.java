@@ -1,30 +1,14 @@
 package com.udacity.stockhawk.model;
 
-import android.util.Log;
-
 import com.github.mikephil.charting.data.Entry;
-import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.utilities.DateConverter;
-import com.udacity.stockhawk.utilities.DateRange;
-import com.udacity.stockhawk.utilities.DateRangeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-
-import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import timber.log.Timber;
-import yahoofinance.histquotes.HistoricalQuote;
 
 /**
  * Used to hold the stock history data and used by the GraphFragment to extract data and display on graph
@@ -37,15 +21,15 @@ public class StockHistory {
 
     private String mSymbol;
 
-    private List<Entry> mFullHistoryData = new ArrayList<>();
-    private Map<String, Date> mDateMap = new HashMap<>();
-    private List<String> mDateList = new ArrayList<>();
-    private List<Entry> mWeeklyHistoryData = new ArrayList<>();
+//    private List<Entry> mFullHistoryData = new ArrayList<>();
+//    private Map<String, Date> mDateMap = new HashMap<>();
+//    private List<String> mDateList = new ArrayList<>();
+    private List<Entry> mLastHistoryEntries = new ArrayList<>();
 
-    public StockHistory(String symbol, String history) {
+    public StockHistory(String symbol) {
         this.mSymbol = symbol;
-        mFullHistoryData = parseHistoryString(history);
-        setDates();
+//        mFullHistoryData = parseHistoryString(history);
+//        setDates();
 
     }
 
@@ -57,24 +41,14 @@ public class StockHistory {
         mSymbol = symbol;
     }
 
-    public List<Entry> getFullHistoryEntries() {
-        return mFullHistoryData;
+
+
+    public List<Entry> getLastHistoryEntries() {
+        return mLastHistoryEntries;
     }
-
-    public String[] getHistoryDateArray(){
-        return  mDateList.toArray(new String[mDateList.size()]);
-    }
-
-    public Date getDateFromDateString(String dateString){
-        return mDateMap.get(dateString);
-
-    }
-
 
 
     public List<Entry> parseHistoryString(String history){
-
-        Timber.v("Parsing history: " + history);
 
         List<Entry> entries = new ArrayList<>();
 
@@ -87,34 +61,24 @@ public class StockHistory {
             long dateInMillis = Long.parseLong(dateSubString);
             float closePrice = Float.parseFloat(line.substring(line.indexOf(",")+1));
             entries.add(new Entry(dateInMillis, closePrice));
-//            Collections.sort(entries, new Comparator<Entry>() {
-//                @Override
-//                public int compare(Entry o1, Entry o2) {
-//                    if(o1.getX()>o2.getX()){
-//                        return 1;
-//                    } else return -1;
-//                }
-//            });
+
         }
-        Collections.reverse(entries);
+        Collections.reverse(entries); //to put in chronological order
+        mLastHistoryEntries = entries;
         return entries;
     }
 
-    private void setDates(){
-
-        for(Entry entry: mFullHistoryData){
-            long dateInMillis = (long) entry.getX();
-            String date = DateConverter.getMonthDateYearFormat(dateInMillis);
-            mDateMap.put(date, new Date(dateInMillis));
-            mDateList.add(date);
-        }
-    }
-
-
+//    private void setDates(){
+//
+//        for(Entry entry: mFullHistoryData){
+//            long dateInMillis = (long) entry.getX();
+//            String date = DateConverter.getMonthDateYearFormat(dateInMillis);
+//            mDateMap.put(date, new Date(dateInMillis));
+//            mDateList.add(date);
+//        }
+//    }
 
 
-    public List<Entry> getWeeklyHistoryData() {
-        return mWeeklyHistoryData;
-    }
+
 
 }
