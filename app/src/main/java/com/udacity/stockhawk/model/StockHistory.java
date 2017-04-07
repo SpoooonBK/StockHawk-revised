@@ -20,17 +20,16 @@ public class StockHistory {
 
 
     private String mSymbol;
-
-//    private List<Entry> mFullHistoryData = new ArrayList<>();
-//    private Map<String, Date> mDateMap = new HashMap<>();
-//    private List<String> mDateList = new ArrayList<>();
+    private String mHistoryString;
     private List<Entry> mLastHistoryEntries = new ArrayList<>();
 
     public StockHistory(String symbol) {
         this.mSymbol = symbol;
-//        mFullHistoryData = parseHistoryString(history);
-//        setDates();
+    }
 
+    public StockHistory(String symbol, String history){
+        mSymbol = symbol;
+        parseHistoryString(history);
     }
 
     public String getSymbol() {
@@ -41,14 +40,20 @@ public class StockHistory {
         mSymbol = symbol;
     }
 
-
+    public String getHistoryString() {
+        return mHistoryString;
+    }
 
     public List<Entry> getLastHistoryEntries() {
         return mLastHistoryEntries;
     }
 
 
+
+
     public List<Entry> parseHistoryString(String history){
+
+        mHistoryString = history;
 
         List<Entry> entries = new ArrayList<>();
 
@@ -65,6 +70,7 @@ public class StockHistory {
         }
         Collections.reverse(entries); //to put in chronological order
         mLastHistoryEntries = entries;
+
         return entries;
     }
 

@@ -32,23 +32,26 @@ public class DetailActivity extends AppCompatActivity {
 
 
 
-        if(savedInstanceState != null){
-           GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
+//        if(savedInstanceState != null){
+//           GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
+//
+//            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
+//
+//        } else {
 
-            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
-
-        } else {
-
+        if(savedInstanceState == null){
             GraphFragment graphFragment = new GraphFragment();
             graphFragment.setArguments(getIntent().getExtras());
-            mSymbol = getIntent().getStringExtra(SYMBOL);
-            graphFragment.setSymbol(mSymbol);
+
             getFragmentManager().beginTransaction()
                     .add(R.id.fragment_placeholder, graphFragment, DETAIL_ACTIVITY_TAG )
                     .show(graphFragment)
                     .addToBackStack(null)
                     .commit();
+        } else {
+            GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
         }
+
     }
 
 
