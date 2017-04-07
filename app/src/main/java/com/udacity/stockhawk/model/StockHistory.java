@@ -32,6 +32,12 @@ public class StockHistory {
         parseHistoryString(history);
     }
 
+    public boolean hasEntries(){
+        if(mLastHistoryEntries != null){
+            return true;
+        }else return false;
+    }
+
     public String getSymbol() {
         return mSymbol;
     }

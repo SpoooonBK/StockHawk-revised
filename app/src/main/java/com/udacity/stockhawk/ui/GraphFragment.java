@@ -60,13 +60,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private final String HISTORY = "history";
     private int mLastSpinnerItemSelected;
 
-    public void setSymbol(String symbol) {
-        mSymbol = symbol;
-    }
 
-    public void setSpinner(Spinner spinner) {
-        mSpinner = spinner;
-    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,13 +75,14 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         setHasOptionsMenu(true);
 
         if (savedInstanceState == null) {
-            setSymbol(getArguments().getString(DetailActivity.SYMBOL));
-            setStockHistory(mSymbol, null);
+            mSymbol = (getArguments().getString(DetailActivity.SYMBOL));
+           mStockHistory = new StockHistory(mSymbol);
         } else {
-            setStockHistory(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
+            mSymbol = savedInstanceState.getString(SYMBOL);
+            mStockHistory = new StockHistory(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
             mSavedInstanceState = savedInstanceState;
         }
-        populateSpinner();
+
 
 
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
@@ -102,16 +98,6 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
-    public void setStockHistory(String symbol, @Nullable String history) {
-
-        if (history == null) {
-            mStockHistory = new StockHistory(symbol);
-        } else {
-            mStockHistory = new StockHistory(history);
-        }
-
-    }
-
     public void updateGraph(final String symbol, final String dateString) {
 
         Observable<String> observable = null;
@@ -121,6 +107,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         DateRange dateRange = null;
 
 
+
+
         if (dateString.startsWith("Q")) {   //get the quarter if chosen
             String quarter = dateString.substring(0, 2);
             dateRange = dateRangeFactory.getDateRange(quarter);
@@ -128,63 +116,85 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
             dateRange = dateRangeFactory.getDateRange(dateString);
         }
 
-        observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
+        if(mStockHistory.hasEntries()){
+
+            populateGraph(symbol, dateString, mStockHistory.getHistoryString());
 
 
-        Subscription subscription = observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
-                    @Override
-                    public void onCompleted() {
 
-                        mProgress.hide();
-                        mSavedInstanceState = null; //nulls Bundle so that progress will dialog shows again
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(String history) {
-
-                        List<Entry> entries = mStockHistory.parseHistoryString(history);
-
-                        LineDataSet lineDataSet = new LineDataSet(entries, symbol);
-                        lineDataSet.setColor(Color.BLACK);
-                        LineData lineData = new LineData(lineDataSet);
-                        mLineChart.setData(lineData);
-                        mLineChart.getXAxis().setValueFormatter(new GraphValueFormatter());
-                        Description description = new Description();
-                        description.setText(dateString);
-                        mLineChart.setDescription(description);
-                        mLineChart.setBackgroundColor(Color.WHITE);
-                        mLineChart.invalidate();
-
-                        Float startValue = entries.get(0).getY();
-                        Float endValue = entries.get(entries.size() - 1).getY();
+        }else {
+            observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
 
 
-                        mTextViewStartValue.setText("$" + startValue.toString());
-                        mTextViewEndValue.setText("$" + endValue.toString());
+            Subscription subscription = observable.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onCompleted() {
 
-                        if (endValue < startValue) {
-                            mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
-                            mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
-                        } else if (endValue > startValue) {
-                            mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
-                            mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
+                            mProgress.hide();
+                            mSavedInstanceState = null; //nulls Bundle so that progress will dialog shows again
                         }
 
-                        setPercentageChange(startValue, endValue);
-                    }
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(String history) {
+
+                            populateGraph(symbol, dateString, history);
+
+                        }
 
 
-                });
+                    });
+        }
+    }
 
+    private void populateGraph(String symbol, String dateString, String history){
+
+        List<Entry> entries = null;
+
+        if(!mStockHistory.hasEntries()){
+            entries = mStockHistory.parseHistoryString(history);
+        } else {
+            entries = mStockHistory.getLastHistoryEntries();
+        }
+
+
+        LineDataSet lineDataSet = new LineDataSet(entries, symbol);
+        lineDataSet.setColor(Color.BLACK);
+        LineData lineData = new LineData(lineDataSet);
+        mLineChart.setData(lineData);
+        mLineChart.getXAxis().setValueFormatter(new GraphValueFormatter());
+        Description description = new Description();
+        description.setText(dateString);
+        mLineChart.setDescription(description);
+        mLineChart.setBackgroundColor(Color.WHITE);
+        mLineChart.invalidate();
+
+        Float startValue = entries.get(0).getY();
+        Float endValue = entries.get(entries.size() - 1).getY();
+
+
+        mTextViewStartValue.setText("$" + startValue.toString());
+        mTextViewEndValue.setText("$" + endValue.toString());
+
+        if (endValue < startValue) {
+            mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
+            mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_red));
+        } else if (endValue > startValue) {
+            mTextViewEndValue.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
+            mTextViewPercentageChange.setBackground(getResources().getDrawable(R.drawable.percent_change_pill_green));
+        }
+
+        setPercentageChange(startValue, endValue);
 
     }
+
+
 
     //Shows the percentage change from the start value and end value during the date range for the selected stock
     private void setPercentageChange(float startValue, float endValue) {
@@ -302,6 +312,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         mLastSpinnerItemSelected = position;
 
+
         updateGraph(mStockHistory.getSymbol(), parent.getItemAtPosition(position).toString());
     }
 
@@ -315,13 +326,11 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.detail_activity_menu, menu);
-        if (mSavedInstanceState == null) {
+
             MenuItem menuItem = menu.findItem(R.id.spinner);
             mSpinner = (Spinner) menuItem.getActionView();
-            setStockHistory(mSymbol, null);
-            populateSpinner();
             ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
-        }
+             populateSpinner();
 
     }
 
@@ -339,7 +348,9 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onStop() {
         super.onStop();
-        mProgress.dismiss();
+        if(mProgress != null) {
+            mProgress.dismiss();
+        }
     }
 
 

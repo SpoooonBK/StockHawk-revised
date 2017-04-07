@@ -24,55 +24,26 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
-
         setContentView(R.layout.activity_detail);
 
-
-
-
-//        if(savedInstanceState != null){
-//           GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
-//
-//            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
-//
-//        } else {
-
-        if(savedInstanceState == null){
+        if(savedInstanceState == null) {
             GraphFragment graphFragment = new GraphFragment();
             graphFragment.setArguments(getIntent().getExtras());
 
             getFragmentManager().beginTransaction()
-                    .add(R.id.fragment_placeholder, graphFragment, DETAIL_ACTIVITY_TAG )
+                    .add(R.id.fragment_placeholder, graphFragment, DETAIL_ACTIVITY_TAG)
                     .show(graphFragment)
                     .addToBackStack(null)
                     .commit();
-        } else {
-            GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
         }
+//        } else {
+//            GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
+//            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
+//        }
 
     }
 
 
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//
-//        MenuInflater menuInflater = getMenuInflater();
-//        menuInflater.inflate(R.menu.detail_activity_menu, menu);
-//        MenuItem menuItem = menu.findItem(R.id.spinner);
-//        Spinner spinner = (Spinner) menuItem.getActionView();
-//
-//        String stockSymbol = getIntent().getStringExtra(SYMBOL);
-//
-//        GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentById(R.id.fragment_graph);
-//        graphFragment.setSymbol(stockSymbol);
-//        graphFragment.setSpinner(spinner);
-//
-//        getSupportActionBar().setTitle(stockSymbol);
-//        graphFragment.setStockHistory(stockSymbol);
-//
-//        return true;
-//    }
 
 
     @Override
