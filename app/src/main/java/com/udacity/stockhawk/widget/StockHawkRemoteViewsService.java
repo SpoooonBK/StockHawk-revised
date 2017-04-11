@@ -15,31 +15,15 @@ import com.udacity.stockhawk.data.Contract;
  * Created by spoooon on 4/6/17.
  */
 
-public class StockHawkRemoteViewsService extends RemoteViewsService implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor>{
+public class StockHawkRemoteViewsService extends RemoteViewsService{
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
+
 
 
         return null;
     }
 
-    @Override
-    public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Contract.Quote.URI,
-                Contract.Quote.QUOTE_COLUMNS.toArray(new String[]{}),
-                null, null, Contract.Quote.COLUMN_SYMBOL);
-    }
-
-    @Override
-    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-
-    }
 }
 
 
