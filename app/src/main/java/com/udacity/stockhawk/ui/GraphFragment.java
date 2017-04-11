@@ -21,16 +21,16 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.model.StockHistory;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.utilities.DateManager;
 import com.udacity.stockhawk.utilities.DateRange;
 import com.udacity.stockhawk.utilities.DateRangeFactory;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import rx.Observable;
@@ -38,12 +38,13 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by spoooon on 3/23/17.
  */
 
-public class GraphFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class GraphFragment extends Fragment implements AdapterView.OnItemSelectedListener, OnChartValueSelectedListener{
 
 
     private static final String SYMBOL = "symbol";
@@ -59,6 +60,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private final String SPINNER_POSITION = "spinner_item";
     private final String HISTORY = "history";
     private int mLastSpinnerItemSelected;
+    private TextView mHighlightedDate;
+    private TextView mHighlightedQuote;
 
 
 
@@ -74,11 +77,13 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         setHasOptionsMenu(true);
 
+        //Use saved history to build StockHistory instead of making an internet call on rotation
         if (savedInstanceState == null) {
             mSymbol = (getArguments().getString(DetailActivity.SYMBOL));
            mStockHistory = new StockHistory(mSymbol);
         } else {
             mSymbol = savedInstanceState.getString(SYMBOL);
+            mLastSpinnerItemSelected = savedInstanceState.getInt(SPINNER_POSITION);
             mStockHistory = new StockHistory(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
             mSavedInstanceState = savedInstanceState;
         }
@@ -92,6 +97,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         mTextViewPercentageChange = (TextView) rootView.findViewById(R.id.text_percentage_change);
         mTextViewStartValue = (TextView) rootView.findViewById(R.id.text_start_value);
         mTextViewEndValue = (TextView) rootView.findViewById(R.id.text_end_value);
+        mHighlightedDate = (TextView) rootView.findViewById(R.id.highlighted_date);
+        mHighlightedQuote = (TextView) rootView.findViewById(R.id.highlighted_quote);
 
 
         return rootView;
@@ -101,30 +108,23 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     public void updateGraph(final String symbol, final String dateString) {
 
         Observable<String> observable = null;
-
         DateRangeFactory dateRangeFactory = new DateRangeFactory(getActivity());
-
         DateRange dateRange = null;
 
 
-
-
-        if (dateString.startsWith("Q")) {   //get the quarter if chosen
+        if (dateString.startsWith("Q")) {   //get DateRange of the quarter if chosen
             String quarter = dateString.substring(0, 2);
             dateRange = dateRangeFactory.getDateRange(quarter);
         } else {
             dateRange = dateRangeFactory.getDateRange(dateString);
         }
 
-        if(mStockHistory.hasEntries()){
+        if(mStockHistory.hasEntries() && mLastSpinnerItemSelected == mSpinner.getSelectedItemPosition()) {
 
-            populateGraph(symbol, dateString, mStockHistory.getHistoryString());
-
-
+                populateGraph(symbol, dateString, mStockHistory.getHistoryString());
 
         }else {
             observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
-
 
             Subscription subscription = observable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -132,8 +132,8 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                         @Override
                         public void onCompleted() {
 
-                            mProgress.hide();
-                            mSavedInstanceState = null; //nulls Bundle so that progress will dialog shows again
+
+                            mSavedInstanceState = null; //nulls Bundle so that progress dialog will show again
                         }
 
                         @Override
@@ -147,22 +147,13 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
                             populateGraph(symbol, dateString, history);
 
                         }
-
-
                     });
         }
     }
 
     private void populateGraph(String symbol, String dateString, String history){
 
-        List<Entry> entries = null;
-
-        if(!mStockHistory.hasEntries()){
-            entries = mStockHistory.parseHistoryString(history);
-        } else {
-            entries = mStockHistory.getLastHistoryEntries();
-        }
-
+        List<Entry> entries = mStockHistory.parseHistoryString(history);
 
         LineDataSet lineDataSet = new LineDataSet(entries, symbol);
         lineDataSet.setColor(Color.BLACK);
@@ -173,6 +164,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         description.setText(dateString);
         mLineChart.setDescription(description);
         mLineChart.setBackgroundColor(Color.WHITE);
+        mLineChart.setOnChartValueSelectedListener(this);
         mLineChart.invalidate();
 
         Float startValue = entries.get(0).getY();
@@ -191,6 +183,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         }
 
         setPercentageChange(startValue, endValue);
+        toggleProgress();
 
     }
 
@@ -210,6 +203,22 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     }
 
+
+
+//MENU ITEM METHODS
+//
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detail_activity_menu, menu);
+
+            MenuItem menuItem = menu.findItem(R.id.spinner);
+            mSpinner = (Spinner) menuItem.getActionView();
+            ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
+             populateSpinner();
+
+    }
+
+
     //The spinner will display date range choices
     private void populateSpinner() {
 
@@ -218,7 +227,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         dateList.add(getString(R.string.last_thirty_days));
         dateList.add(getString(R.string.last_seven_days));
         dateList.add(getString(R.string.year_to_date));
-        dateList.addAll(setAvailableQuarters());
+        dateList.addAll(DateManager.getAvailableQuarters());
 
         String[] dates = dateList.toArray(new String[dateList.size()]);
 
@@ -234,87 +243,28 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     }
 
-    //Determines the correct dates for fiscal quarters
-    private List<String> setAvailableQuarters() {
-        Calendar today = Calendar.getInstance();
 
-        List<String> quarters = new ArrayList<>();
-
-
-        Calendar quarter1End = Calendar.getInstance();
-        quarter1End.set(Calendar.MONTH, Calendar.MARCH);
-        quarter1End.set(Calendar.DATE, 31);
-        if (quarter1End.compareTo(today) > 0) {
-            quarter1End.add(Calendar.YEAR, -1);
-        }
-
-
-        Calendar quarter2End = Calendar.getInstance();
-        quarter2End.set(Calendar.MONTH, Calendar.JUNE);
-        quarter2End.set(Calendar.DATE, 30);
-        if (quarter2End.compareTo(today) > 0) {
-            quarter2End.add(Calendar.YEAR, -1);
-        }
-
-        Calendar quarter3End = Calendar.getInstance();
-        quarter3End.set(Calendar.MONTH, Calendar.SEPTEMBER);
-        quarter3End.set(Calendar.DATE, 30);
-        if (quarter3End.compareTo(today) > 0) {
-            quarter3End.add(Calendar.YEAR, -1);
-        }
-
-
-        Calendar quarter4End = Calendar.getInstance();
-        quarter4End.set(Calendar.MONTH, Calendar.DECEMBER);
-        quarter4End.set(Calendar.DATE, 31);
-        if (quarter4End.compareTo(today) > 0) {
-            quarter4End.add(Calendar.YEAR, -1);
-        }
-
-
-        quarters.add("Q1 " + quarter1End.get(Calendar.YEAR));
-        quarters.add("Q2 " + quarter2End.get(Calendar.YEAR));
-        quarters.add("Q3 " + quarter3End.get(Calendar.YEAR));
-        quarters.add("Q4 " + quarter4End.get(Calendar.YEAR));
-
-        // Sorts quarters into reverse chronological order
-        Collections.sort(quarters, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-
-                int o1Year = Integer.valueOf(o1.substring(3));
-                int o2Year = Integer.valueOf(o2.substring(3));
-                if (o1Year == o2Year) {
-                    return o2.substring(1, 2).compareTo(o1.substring(1, 2));
-                } else {
-                    return o2.substring(3).compareTo(o1.substring(3));
-                }
-            }
-        });
-
-        return quarters;
-
-    }
 
     //When Item is selected from options spinner the graph will update with the selected date range
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        //show progress dialogue when making internet call
-        mProgress = new ProgressDialog(getActivity());
-        mProgress.setMessage(getString(R.string.getting_quotes));
-        mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgress.setIndeterminate(true);
-
-        if (mSavedInstanceState != null) {
-            mProgress.hide(); //keeps the progress dialog hidden on rotation
-        } else mProgress.show();
-
-        mLastSpinnerItemSelected = position;
-
-
+        toggleProgress();
         updateGraph(mStockHistory.getSymbol(), parent.getItemAtPosition(position).toString());
     }
+
+    private void toggleProgress(){
+        if(mProgress == null){
+            mProgress = new ProgressDialog(getActivity());
+            mProgress.setMessage(getString(R.string.getting_quotes));
+            mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgress.setIndeterminate(true);
+        }
+
+        if(mProgress.isShowing()){
+            mProgress.hide();
+        } else mProgress.show();
+    }
+
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -322,23 +272,12 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.detail_activity_menu, menu);
-
-            MenuItem menuItem = menu.findItem(R.id.spinner);
-            mSpinner = (Spinner) menuItem.getActionView();
-            ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
-             populateSpinner();
-
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putInt(SPINNER_POSITION, mLastSpinnerItemSelected);
+
+        outState.putInt(SPINNER_POSITION, mSpinner.getSelectedItemPosition());
         outState.putString(HISTORY, mStockHistory.getHistoryString());
         outState.putString(SYMBOL, mSymbol);
 
@@ -353,5 +292,16 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         }
     }
 
+//Shows highlighted data from graph
+    @Override
+    public void onValueSelected(Entry e, Highlight h) {
+        mHighlightedDate.setText(DateManager.getMonthDateYearFormat((long) h.getX()));
+        mHighlightedQuote.setText(((Float)h.getY()).toString());
 
+    }
+
+    @Override
+    public void onNothingSelected() {
+
+    }
 }

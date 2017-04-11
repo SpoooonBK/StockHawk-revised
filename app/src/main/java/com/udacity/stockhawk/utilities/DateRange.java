@@ -34,8 +34,8 @@ public class DateRange {
     @Override
     public String toString() {
 
-        return "Date Range : " + DateConverter.getMonthDateYearFormat(getFrom().getTime()) + " - "
-                + DateConverter.getMonthDateYearFormat(getTo().getTime());
+        return "Date Range : " + DateManager.getMonthDateYearFormat(getFrom().getTime()) + " - "
+                + DateManager.getMonthDateYearFormat(getTo().getTime());
 
     }
 }

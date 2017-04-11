@@ -15,9 +15,8 @@ import com.udacity.stockhawk.R;
 
 public class DetailActivity extends AppCompatActivity {
 
+    //Keys to get Intent Extras
     public static final String SYMBOL = "symbol";
-
-    private String mSymbol;
     private static final String DETAIL_ACTIVITY_TAG = "detail_activity";
 
     @Override
@@ -33,24 +32,7 @@ public class DetailActivity extends AppCompatActivity {
             getFragmentManager().beginTransaction()
                     .add(R.id.fragment_placeholder, graphFragment, DETAIL_ACTIVITY_TAG)
                     .show(graphFragment)
-                    .addToBackStack(null)
                     .commit();
         }
-//        } else {
-//            GraphFragment graphFragment = (GraphFragment) getFragmentManager().findFragmentByTag(DETAIL_ACTIVITY_TAG);
-//            graphFragment.setSymbol(savedInstanceState.getString(SYMBOL));
-//        }
-
-    }
-
-
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putString(SYMBOL, mSymbol );
-
-
     }
 }

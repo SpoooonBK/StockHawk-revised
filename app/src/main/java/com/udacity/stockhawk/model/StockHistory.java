@@ -1,14 +1,10 @@
 package com.udacity.stockhawk.model;
 
 import com.github.mikephil.charting.data.Entry;
-import com.udacity.stockhawk.utilities.DateConverter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Used to hold the stock history data and used by the GraphFragment to extract data and display on graph
@@ -21,7 +17,7 @@ public class StockHistory {
 
     private String mSymbol;
     private String mHistoryString;
-    private List<Entry> mLastHistoryEntries = new ArrayList<>();
+    private List<Entry> mLastHistoryEntries;
 
     public StockHistory(String symbol) {
         this.mSymbol = symbol;
@@ -80,15 +76,6 @@ public class StockHistory {
         return entries;
     }
 
-//    private void setDates(){
-//
-//        for(Entry entry: mFullHistoryData){
-//            long dateInMillis = (long) entry.getX();
-//            String date = DateConverter.getMonthDateYearFormat(dateInMillis);
-//            mDateMap.put(date, new Date(dateInMillis));
-//            mDateList.add(date);
-//        }
-//    }
 
 
 
