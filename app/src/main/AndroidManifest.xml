@@ -41,7 +41,7 @@
             android:name=".sync.QuoteIntentService"
             android:exported="false"/>
         <service android:name=".widget.StockHawkRemoteViewsService"
-                 android:permission="android.permision.BIND_REMOTEVIEWS"
+                 android:permission="android.permission.BIND_REMOTEVIEWS"
                  android:exported="false" />
 
         <provider

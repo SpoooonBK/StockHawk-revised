@@ -24,7 +24,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.udacity.stockhawk.R;
-import com.udacity.stockhawk.model.StockHistory;
+import com.udacity.stockhawk.model.StockData;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.utilities.DateManager;
 import com.udacity.stockhawk.utilities.DateRange;
@@ -38,7 +38,6 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * Created by spoooon on 3/23/17.
@@ -48,7 +47,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
     private static final String SYMBOL = "symbol";
-    private StockHistory mStockHistory;
+    private StockData mStockHistory;
     private LineChart mLineChart;
     private Spinner mSpinner;
     private TextView mTextViewPercentageChange;
@@ -77,14 +76,14 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         setHasOptionsMenu(true);
 
-        //Use saved history to build StockHistory instead of making an internet call on rotation
+        //Use saved history to build StockData instead of making an internet call on rotation
         if (savedInstanceState == null) {
             mSymbol = (getArguments().getString(DetailActivity.SYMBOL));
-           mStockHistory = new StockHistory(mSymbol);
+           mStockHistory = new StockData(mSymbol);
         } else {
             mSymbol = savedInstanceState.getString(SYMBOL);
             mLastSpinnerItemSelected = savedInstanceState.getInt(SPINNER_POSITION);
-            mStockHistory = new StockHistory(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
+            mStockHistory = new StockData(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
             mSavedInstanceState = savedInstanceState;
         }
 
@@ -121,7 +120,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
         if(mStockHistory.hasEntries() && mLastSpinnerItemSelected == mSpinner.getSelectedItemPosition()) {
 
-                populateGraph(symbol, dateString, mStockHistory.getHistoryString());
+                populateGraph(symbol, dateString, mStockHistory.getHistory());
 
         }else {
             observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
@@ -278,7 +277,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
         outState.putInt(SPINNER_POSITION, mSpinner.getSelectedItemPosition());
-        outState.putString(HISTORY, mStockHistory.getHistoryString());
+        outState.putString(HISTORY, mStockHistory.getHistory());
         outState.putString(SYMBOL, mSymbol);
 
     }

@@ -29,27 +29,24 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 //        super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-        Intent launchAppIntent = new Intent(context, MainActivity.class);
-
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchAppIntent, 0);
 
 
 
-        for(int appWidgetId : appWidgetIds )
-        {
 
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_gridview);
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
-
-            views.setRemoteAdapter(R.id.widget_gridview, new Intent(context, StockHawkRemoteViewsService.class));
-
-
-            views.setEmptyView(R.id.widget_gridview, R.id.widget_empty_view);
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-        }
+//        for(int appWidgetId : appWidgetIds )
+//        {
+//
+//            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_gridview);
+//            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+//            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
+//
+//            views.setRemoteAdapter(R.id.widget_gridview, new Intent(context, StockHawkRemoteViewsService.class));
+//
+//
+//            views.setEmptyView(R.id.widget_gridview, R.id.widget_empty_view);
+//            appWidgetManager.updateAppWidget(appWidgetId, views);
+//
+//        }
 
     }
 
@@ -62,16 +59,10 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
 
 
         if(QuoteSyncJob.ACTION_DATA_UPDATED.equals(intent.getAction())){
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                    new ComponentName(context, getClass()));
-           appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_gridview);
+
 
             context.startService(new Intent(context, StockHawkWidgetIntentService.class));
         }
     }
 
-    private void setRemoteAdapter(Context context, RemoteViews views){
-        views.setRemoteAdapter(R.id.widget_gridview, new Intent(context, StockHawkRemoteViewsService.class));
-    }
 }
