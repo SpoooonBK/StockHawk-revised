@@ -4,31 +4,18 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.test.ServiceTestCase;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
-import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.model.StockData;
 import com.udacity.stockhawk.ui.MainActivity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import timber.log.Timber;
-import yahoofinance.Stock;
-import yahoofinance.quotes.stock.StockQuotesData;
 
 /**
  * Created by spoooon on 4/6/17.
@@ -54,16 +41,12 @@ public class StockHawkWidgetIntentService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        Intent launchAppIntent = new Intent(getApplicationContext(), MainActivity.class);
-
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, launchAppIntent, 0);
 
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                 new ComponentName(this, StockHawkWidgetProvider.class));
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_gridview);
+
 
         Cursor cursor =getContentResolver().query(
                 Contract.Quote.URI,
@@ -81,7 +64,6 @@ public class StockHawkWidgetIntentService extends IntentService {
             return;
         }
 
-
         ArrayList<StockData> stockList = new ArrayList<>();
 
         while(cursor.moveToNext()){
@@ -89,29 +71,52 @@ public class StockHawkWidgetIntentService extends IntentService {
             stockData.setPrice(cursor.getDouble((Contract.Quote.POSITION_PRICE)));
             stockData.setAbsoluteChange(cursor.getDouble(Contract.Quote.POSITION_ABSOLUTE_CHANGE));
             stockList.add(stockData);
-            Timber.v(stockData.getSymbol() + "received");
-        }
-
-
-        for(int appWidgetId: appWidgetIds){
-            RemoteViews views = new RemoteViews(getPackageName(), R.layout.widget);
-            Intent remoteViewsintent = new Intent(this, RemoteViewsService.class);
-            remoteViewsintent.putParcelableArrayListExtra(STOCK_DATA,stockList);
-
-            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
-            views.setRemoteAdapter(R.id.widget_gridview, remoteViewsintent);
-            views.setTextViewText(R.id.widget_symbol, stockList.get(0).getSymbol());
-            views.setEmptyView(R.id.widget_gridview, R.id.widget_empty_view);
-            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
-
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
         }
 
         if(cursor != null){
             cursor.close();
         }
+
+
+
+
+        for(int appWidgetId: appWidgetIds){
+
+            Intent launchAppIntent = new Intent(getApplicationContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, launchAppIntent, 0);
+
+            RemoteViews views = new RemoteViews(getApplicationContext().getPackageName(), R.layout.widget);
+            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
+            views.setEmptyView(R.id.widget_listview, R.id.widget_empty_view);
+            views.setOnClickPendingIntent(R.id.widget_holder, pendingIntent);
+            Intent updateIntent = new Intent(this, RemoteViewsService.class);
+            updateIntent.putParcelableArrayListExtra(STOCK_DATA,stockList);
+            views.setRemoteAdapter(R.id.widget_listview, updateIntent);
+            views.setTextViewText(R.id.widget_symbol, stockList.get(0).getSymbol());
+
+
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+
+
+        }
+
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_listview);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     }

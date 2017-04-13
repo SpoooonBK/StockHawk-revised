@@ -82,22 +82,25 @@ public class StockHawkRemoteViewsService extends RemoteViewsService{
 
             @Override
             public RemoteViews getLoadingView() {
-                return null;
+
+                Timber.v("FACTORY getLoadingView");return null;
             }
 
             @Override
             public int getViewTypeCount() {
-                return 0;
+                Timber.v("FACTORY getViewTypeCount");return 0;
             }
 
             @Override
             public long getItemId(int position) {
-                return 0;
+
+                Timber.v("getItemId");return 0;
             }
 
             @Override
             public boolean hasStableIds() {
-                return false;
+
+                Timber.v("hasStableIds");return false;
             }
         };
     }
