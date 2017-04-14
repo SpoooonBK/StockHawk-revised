@@ -2,7 +2,10 @@ package com.udacity.stockhawk.ui;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -105,6 +109,11 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
 
     public void updateGraph(final String symbol, final String dateString) {
+
+        if(!networkUp()){
+            Toast.makeText(getActivity(), R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         Observable<String> observable = null;
         DateRangeFactory dateRangeFactory = new DateRangeFactory(getActivity());
@@ -303,4 +312,12 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     public void onNothingSelected() {
 
     }
+
+    private boolean networkUp() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
 }
