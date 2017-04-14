@@ -33,6 +33,7 @@ import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.utilities.DateManager;
 import com.udacity.stockhawk.utilities.DateRange;
 import com.udacity.stockhawk.utilities.DateRangeFactory;
+import com.udacity.stockhawk.utilities.SpinnerPositionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,8 +128,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
             dateRange = dateRangeFactory.getDateRange(dateString);
         }
 
-        if(mStockHistory.hasEntries() && mLastSpinnerItemSelected == mSpinner.getSelectedItemPosition()) {
-
+        if(mSavedInstanceState != null && SpinnerPositionManager.isInOriginalPosition(mSpinner.getSelectedItemPosition())) {
                 populateGraph(symbol, dateString, mStockHistory.getHistory());
 
         }else {
@@ -257,6 +257,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         toggleProgress();
+        SpinnerPositionManager.setNewSpinnerPosition(position);
         updateGraph(mStockHistory.getSymbol(), parent.getItemAtPosition(position).toString());
     }
 
