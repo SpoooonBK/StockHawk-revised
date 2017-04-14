@@ -34,7 +34,11 @@
                 android:resource="@xml/stock_hawk_widget"/>
         </receiver>
 
-        <service android:name=".widget.StockHawkWidgetIntentService"/>
+        <receiver android:name=".sync.StockHawkErrorReceiver">
+            <intent-filter>
+                <action android:name="com.udacity.stockhawk.ACTION_STOCK_NOT_FOUND"/>
+            </intent-filter>
+        </receiver>
 
 
         <service

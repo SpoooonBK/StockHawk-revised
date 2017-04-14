@@ -59,6 +59,7 @@
     <string name="start_value">Start Value</string>
     <string name="end_value">End Value</string>
     <string name="percent_change">% Change</string>
+    <string name="not_a_stock">stock symbol not found</string>
 
 
 </resources>

@@ -1,7 +1,5 @@
 package com.udacity.stockhawk.ui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -25,6 +23,8 @@ import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+import com.udacity.stockhawk.sync.StockHawkErrorReceiver;
+import com.udacity.stockhawk.sync.StockNotFoundErrorListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,7 +32,7 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
-        StockAdapter.StockAdapterOnClickHandler {
+        StockAdapter.StockAdapterOnClickHandler, StockNotFoundErrorListener {
 
     private static final int STOCK_LOADER = 0;
     @SuppressWarnings("WeakerAccess")
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        StockHawkErrorReceiver.registerStockNotFoundErrorListener(this);
 
         adapter = new StockAdapter(this, this);
         stockRecyclerView.setAdapter(adapter);
@@ -187,5 +188,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStockNotFoundError() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 }

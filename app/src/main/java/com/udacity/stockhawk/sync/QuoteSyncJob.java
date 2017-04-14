@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
+import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.utilities.DateRange;
@@ -41,14 +43,14 @@ public final class QuoteSyncJob {
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
     private static final int YEARS_OF_HISTORY = 2;
+    public static final String ACTION_STOCK_NOT_FOUND = "com.udacity.stockhawk.ACTION_STOCK_NOT_FOUND";
+    public static final String STOCK_SYMBOL = "stock_symbol";
 
     private QuoteSyncJob() {
     }
 
 
-
-
-    public static Observable<String> getHistoryStringObservable(final String symbol, final DateRange dateRange){
+    public static Observable<String> getHistoryStringObservable(final String symbol, final DateRange dateRange) {
 
         Observable<String> observable = Observable.fromCallable(new Callable<String>() {
             @Override
@@ -60,9 +62,7 @@ public final class QuoteSyncJob {
     }
 
 
-
-
-    public static String getHistory(String symbol, DateRange dateRange){
+    public static String getHistory(String symbol, DateRange dateRange) {
 
         Timber.v("Requesting quotes: " + symbol + dateRange.toString());
 
@@ -104,6 +104,7 @@ public final class QuoteSyncJob {
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -YEARS_OF_HISTORY);
 
+
         try {
 
             Set<String> stockPref = PrefUtils.getStocks(context);
@@ -129,35 +130,41 @@ public final class QuoteSyncJob {
 
 
                 Stock stock = quotes.get(symbol);
-                StockQuote quote = stock.getQuote();
 
-                float price = quote.getPrice().floatValue();
-                float change = quote.getChange().floatValue();
-                float percentChange = quote.getChangeInPercent().floatValue();
+                if (stock.getName() != null) {
+                    StockQuote quote = stock.getQuote();
 
-                // WARNING! Don't request historical data for a stock that doesn't exist!
-                // The request will hang forever X_x
-                List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
-
-                StringBuilder historyBuilder = new StringBuilder();
-
-                for (HistoricalQuote it : history) {
-                    historyBuilder.append(it.getDate().getTimeInMillis());
-                    historyBuilder.append(", ");
-                    historyBuilder.append(it.getClose());
-                    historyBuilder.append("\n");
-                }
-
-                ContentValues quoteCV = new ContentValues();
-                quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
-                quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
-                quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
-                quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
+                    float price = quote.getPrice().floatValue();
+                    float change = quote.getChange().floatValue();
+                    float percentChange = quote.getChangeInPercent().floatValue();
 
 
-                quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
+                    // WARNING! Don't request historical data for a stock that doesn't exist!
+                    // The request will hang forever X_x
+                    List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
 
-                quoteCVs.add(quoteCV);
+                    StringBuilder historyBuilder = new StringBuilder();
+
+                    for (HistoricalQuote it : history) {
+                        historyBuilder.append(it.getDate().getTimeInMillis());
+                        historyBuilder.append(", ");
+                        historyBuilder.append(it.getClose());
+                        historyBuilder.append("\n");
+                    }
+
+                    ContentValues quoteCV = new ContentValues();
+                    quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
+                    quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
+                    quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
+                    quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
+
+
+                    quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
+
+                    quoteCVs.add(quoteCV);
+
+                } else { throw new StockNotFoundException(symbol);}
+
 
             }
 
@@ -171,7 +178,14 @@ public final class QuoteSyncJob {
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
+        } catch (StockNotFoundException e){
+            Timber.e(e, "Stock not found: " + e.getSymbol());
+            Intent stockNotFoundIntent = new Intent(ACTION_STOCK_NOT_FOUND);
+            stockNotFoundIntent.putExtra(STOCK_SYMBOL, e.getSymbol());
+            PrefUtils.removeStock(context, e.getSymbol());
+            context.sendBroadcast(stockNotFoundIntent);
         }
+
     }
 
     private static void schedulePeriodic(Context context) {
