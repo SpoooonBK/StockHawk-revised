@@ -1,7 +1,6 @@
 package com.udacity.stockhawk.utilities;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import com.udacity.stockhawk.R;
 
@@ -35,9 +34,7 @@ public class DateRangeFactory {
         Q_4 = context.getString(R.string.q4);
     }
 
-    public DateRange getDateRange(String rangeConstant){
-
-
+    public DateRange getDateRange(String rangeConstant) {
 
 
         Calendar today = Calendar.getInstance();
@@ -52,9 +49,9 @@ public class DateRangeFactory {
         //using if else instead of switch in order to use strings.xml values as constants
         if (rangeConstant.equals(LAST_SEVEN_DAYS)) {
 
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, -7);
-                startingDate = cal.getTime();
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -7);
+            startingDate = cal.getTime();
 
         } else if (rangeConstant.equals(YEAR_TO_DATE)) {
             Calendar cal = Calendar.getInstance();
@@ -63,9 +60,9 @@ public class DateRangeFactory {
             startingDate = cal.getTime();
 
         } else if (rangeConstant.equals(LAST_THIRTY_DAYS)) {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, -30);
-                startingDate = cal.getTime();
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -30);
+            startingDate = cal.getTime();
 
         } else if (rangeConstant.equals(Q_1)) {
             quarterStart.set(Calendar.MONTH, Calendar.JANUARY);

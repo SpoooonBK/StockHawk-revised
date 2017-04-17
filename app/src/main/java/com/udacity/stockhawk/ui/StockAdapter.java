@@ -1,8 +1,6 @@
 package com.udacity.stockhawk.ui;
 
 
-import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -140,8 +138,6 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra(DetailActivity.SYMBOL, symbol);
             context.startActivity(intent);
-
-
 
 
         }

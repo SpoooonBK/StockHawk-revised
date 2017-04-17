@@ -56,10 +56,10 @@
     <string name="highlighted_value_header" translatable="true">Highlighted Quote</string>
     <string name="date" translatable="true">Date</string>
     <string name="quote" translatable="true">Quote</string>
-    <string name="start_value">Start Value</string>
-    <string name="end_value">End Value</string>
-    <string name="percent_change">% Change</string>
-    <string name="not_a_stock">stock symbol not found</string>
+    <string name="start_value" translatable="true">Start Value</string>
+    <string name="end_value" translatable="true">End Value</string>
+    <string name="percent_change" translatable="true">% Change</string>
+    <string name="not_a_stock" translatable="true">stock symbol not found</string>
 
 
 </resources>

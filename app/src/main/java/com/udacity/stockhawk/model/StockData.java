@@ -30,15 +30,15 @@ public class StockData implements Parcelable {
         this.mSymbol = symbol;
     }
 
-    public StockData(String symbol, String history){
+    public StockData(String symbol, String history) {
         mSymbol = symbol;
         parseHistoryString(history);
     }
 
-    public boolean hasEntries(){
-        if(mLastHistoryEntries != null){
+    public boolean hasEntries() {
+        if (mLastHistoryEntries != null) {
             return true;
-        }else return false;
+        } else return false;
     }
 
     public String getSymbol() {
@@ -89,7 +89,7 @@ public class StockData implements Parcelable {
         mLastHistoryEntries = lastHistoryEntries;
     }
 
-    public List<Entry> parseHistoryString(String history){
+    public List<Entry> parseHistoryString(String history) {
 
         mHistory = history;
 
@@ -97,12 +97,12 @@ public class StockData implements Parcelable {
 
         //Splits the historyString into an array of strings by new line
         String[] lines = history.split("[\\r\\n]+");
-        for(String line: lines){
+        for (String line : lines) {
             //Parses each line by locating the "," and extracting the data substrings
             //The date will be the x axis and the endPrice will be the y axis of the GraphFragment Graph
-            String dateSubString= line.substring(0, line.indexOf(","));
+            String dateSubString = line.substring(0, line.indexOf(","));
             long dateInMillis = Long.parseLong(dateSubString);
-            float closePrice = Float.parseFloat(line.substring(line.indexOf(",")+1));
+            float closePrice = Float.parseFloat(line.substring(line.indexOf(",") + 1));
             entries.add(new Entry(dateInMillis, closePrice));
 
         }

@@ -48,7 +48,7 @@ import rx.schedulers.Schedulers;
  * Created by spoooon on 3/23/17.
  */
 
-public class GraphFragment extends Fragment implements AdapterView.OnItemSelectedListener, OnChartValueSelectedListener{
+public class GraphFragment extends Fragment implements AdapterView.OnItemSelectedListener, OnChartValueSelectedListener {
 
 
     private static final String SYMBOL = "symbol";
@@ -68,8 +68,6 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     private TextView mHighlightedQuote;
 
 
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,14 +82,13 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         //Use saved history to build StockData instead of making an internet call on rotation
         if (savedInstanceState == null) {
             mSymbol = (getArguments().getString(DetailActivity.SYMBOL));
-           mStockHistory = new StockData(mSymbol);
+            mStockHistory = new StockData(mSymbol);
         } else {
             mSymbol = savedInstanceState.getString(SYMBOL);
             mLastSpinnerItemSelected = savedInstanceState.getInt(SPINNER_POSITION);
             mStockHistory = new StockData(savedInstanceState.getString(SYMBOL), savedInstanceState.getString(HISTORY));
             mSavedInstanceState = savedInstanceState;
         }
-
 
 
         View rootView = inflater.inflate(R.layout.fragment_graph, container, false);
@@ -111,7 +108,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
 
     public void updateGraph(final String symbol, final String dateString) {
 
-        if(!networkUp()){
+        if (!networkUp()) {
             Toast.makeText(getActivity(), R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
             return;
         }
@@ -128,10 +125,10 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
             dateRange = dateRangeFactory.getDateRange(dateString);
         }
 
-        if(mSavedInstanceState != null && SpinnerPositionManager.isInOriginalPosition(mSpinner.getSelectedItemPosition())) {
-                populateGraph(symbol, dateString, mStockHistory.getHistory());
+        if (mSavedInstanceState != null && SpinnerPositionManager.isInOriginalPosition(mSpinner.getSelectedItemPosition())) {
+            populateGraph(symbol, dateString, mStockHistory.getHistory());
 
-        }else {
+        } else {
             observable = QuoteSyncJob.getHistoryStringObservable(symbol, dateRange);
 
             Subscription subscription = observable.subscribeOn(Schedulers.io())
@@ -159,7 +156,7 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         }
     }
 
-    private void populateGraph(String symbol, String dateString, String history){
+    private void populateGraph(String symbol, String dateString, String history) {
 
         List<Entry> entries = mStockHistory.parseHistoryString(history);
 
@@ -196,7 +193,6 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
-
     //Shows the percentage change from the start value and end value during the date range for the selected stock
     private void setPercentageChange(float startValue, float endValue) {
 
@@ -212,17 +208,16 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
-
-//MENU ITEM METHODS
+    //MENU ITEM METHODS
 //
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.detail_activity_menu, menu);
 
-            MenuItem menuItem = menu.findItem(R.id.spinner);
-            mSpinner = (Spinner) menuItem.getActionView();
-            ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
-             populateSpinner();
+        MenuItem menuItem = menu.findItem(R.id.spinner);
+        mSpinner = (Spinner) menuItem.getActionView();
+        ((DetailActivity) getActivity()).getSupportActionBar().setTitle(mSymbol);
+        populateSpinner();
 
     }
 
@@ -252,7 +247,6 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     }
 
 
-
     //When Item is selected from options spinner the graph will update with the selected date range
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -261,15 +255,15 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
         updateGraph(mStockHistory.getSymbol(), parent.getItemAtPosition(position).toString());
     }
 
-    private void toggleProgress(){
-        if(mProgress == null){
+    private void toggleProgress() {
+        if (mProgress == null) {
             mProgress = new ProgressDialog(getActivity());
             mProgress.setMessage(getString(R.string.getting_quotes));
             mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             mProgress.setIndeterminate(true);
         }
 
-        if(mProgress.isShowing()){
+        if (mProgress.isShowing()) {
             mProgress.hide();
         } else mProgress.show();
     }
@@ -296,16 +290,16 @@ public class GraphFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onStop() {
         super.onStop();
-        if(mProgress != null) {
+        if (mProgress != null) {
             mProgress.dismiss();
         }
     }
 
-//Shows highlighted data from graph
+    //Shows highlighted data from graph
     @Override
     public void onValueSelected(Entry e, Highlight h) {
         mHighlightedDate.setText(DateManager.getMonthDateYearFormat((long) h.getX()));
-        mHighlightedQuote.setText(((Float)h.getY()).toString());
+        mHighlightedQuote.setText(((Float) h.getY()).toString());
 
     }
 

@@ -18,9 +18,7 @@ public class DateManager {
     public static final String LOG_TAG = DateManager.class.getSimpleName();
 
 
-
-
-    public static String getMonthDateYearFormat(long timeInMillis){
+    public static String getMonthDateYearFormat(long timeInMillis) {
 
         Date date = new Date(timeInMillis);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(MONTH_DATE_YEAR_FORMAT);
@@ -28,7 +26,7 @@ public class DateManager {
         return simpleDateFormat.format(date);
     }
 
-    public static String getMonthDateYearFormat(String timeInMillis){
+    public static String getMonthDateYearFormat(String timeInMillis) {
 
         return getMonthDateYearFormat(Long.parseLong(timeInMillis));
     }

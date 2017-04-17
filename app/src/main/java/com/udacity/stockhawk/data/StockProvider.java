@@ -71,7 +71,7 @@ public class StockProvider extends ContentProvider {
         }
 
         Context context = getContext();
-        if (context != null){
+        if (context != null) {
             returnCursor.setNotificationUri(context.getContentResolver(), uri);
         }
 
@@ -104,7 +104,7 @@ public class StockProvider extends ContentProvider {
         }
 
         Context context = getContext();
-        if (context != null){
+        if (context != null) {
             context.getContentResolver().notifyChange(uri, null);
         }
 
@@ -143,7 +143,7 @@ public class StockProvider extends ContentProvider {
 
         if (rowsDeleted != 0) {
             Context context = getContext();
-            if (context != null){
+            if (context != null) {
                 context.getContentResolver().notifyChange(uri, null);
             }
         }

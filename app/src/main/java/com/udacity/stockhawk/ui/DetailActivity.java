@@ -1,15 +1,7 @@
 package com.udacity.stockhawk.ui;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.os.PersistableBundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Spinner;
+import android.support.v7.app.AppCompatActivity;
 
 import com.udacity.stockhawk.R;
 
@@ -25,7 +17,7 @@ public class DetailActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_detail);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             GraphFragment graphFragment = new GraphFragment();
             graphFragment.setArguments(getIntent().getExtras());
 

@@ -8,10 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
-import android.widget.Toast;
 
-import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.utilities.DateRange;
@@ -19,7 +16,6 @@ import com.udacity.stockhawk.utilities.DateRange;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -163,7 +159,9 @@ public final class QuoteSyncJob {
 
                     quoteCVs.add(quoteCV);
 
-                } else { throw new StockNotFoundException(symbol);}
+                } else {
+                    throw new StockNotFoundException(symbol);
+                }
 
 
             }
@@ -178,7 +176,7 @@ public final class QuoteSyncJob {
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
-        } catch (StockNotFoundException e){
+        } catch (StockNotFoundException e) {
             Timber.e(e, "Stock not found: " + e.getSymbol());
             Intent stockNotFoundIntent = new Intent(ACTION_STOCK_NOT_FOUND);
             stockNotFoundIntent.putExtra(STOCK_SYMBOL, e.getSymbol());

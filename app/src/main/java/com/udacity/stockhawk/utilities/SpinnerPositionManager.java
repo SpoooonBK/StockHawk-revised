@@ -1,14 +1,12 @@
 package com.udacity.stockhawk.utilities;
 
-import android.widget.Spinner;
-
 /**
  * Created by spoooon on 4/14/17.
  */
 
 public class SpinnerPositionManager {
 
-   private static Integer sOriginalSpinnerPosition;
+    private static Integer sOriginalSpinnerPosition;
     private static Integer sNewSpinnerPosition;
 
     public static int getOriginalSpinnerPosition() {
@@ -28,25 +26,25 @@ public class SpinnerPositionManager {
             setOriginalSpinnerPosition(newSpinnerPosition);
             return;
         }
-        if(sNewSpinnerPosition == null){
+        if (sNewSpinnerPosition == null) {
             sNewSpinnerPosition = newSpinnerPosition;
-        }else {
+        } else {
             setOriginalSpinnerPosition(sNewSpinnerPosition);
             sNewSpinnerPosition = newSpinnerPosition;
         }
     }
 
-    public static  boolean isInOriginalPosition(int currentSpinnerPosition){
-        if(sOriginalSpinnerPosition == null){
+    public static boolean isInOriginalPosition(int currentSpinnerPosition) {
+        if (sOriginalSpinnerPosition == null) {
             return true;
         }
 
-        if(sOriginalSpinnerPosition == currentSpinnerPosition){
+        if (sOriginalSpinnerPosition == currentSpinnerPosition) {
             return true;
         } else return false;
     }
 
-    public static void clearOriginalPosition(){
+    public static void clearOriginalPosition() {
         sOriginalSpinnerPosition = null;
     }
 }

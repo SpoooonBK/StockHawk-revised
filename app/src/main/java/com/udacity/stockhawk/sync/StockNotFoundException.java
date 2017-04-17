@@ -1,7 +1,5 @@
 package com.udacity.stockhawk.sync;
 
-import yahoofinance.Stock;
-
 /**
  * Created by spoooon on 4/13/17.
  */
@@ -9,7 +7,7 @@ import yahoofinance.Stock;
 class StockNotFoundException extends Throwable {
     private String mSymbol;
 
-    StockNotFoundException(String symbol){
+    StockNotFoundException(String symbol) {
         mSymbol = symbol;
     }
 

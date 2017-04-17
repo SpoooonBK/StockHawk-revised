@@ -86,13 +86,13 @@ public final class PrefUtils {
 
         if (displayMode.equals(absoluteKey)) {
             editor.putString(key, percentageKey);
-            if(isAccessibilityEnabled){
+            if (isAccessibilityEnabled) {
                 Toast.makeText(context, context.getText(R.string.accessibility_toast_showing_percentage), Toast.LENGTH_SHORT).show();
             }
 
         } else {
             editor.putString(key, absoluteKey);
-            if(isAccessibilityEnabled){
+            if (isAccessibilityEnabled) {
                 Toast.makeText(context, context.getText(R.string.accessibility_toast_showing_dollars), Toast.LENGTH_SHORT).show();
             }
         }

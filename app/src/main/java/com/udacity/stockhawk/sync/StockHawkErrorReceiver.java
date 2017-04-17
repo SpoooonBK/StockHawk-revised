@@ -22,7 +22,7 @@ public class StockHawkErrorReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
 
-        if(QuoteSyncJob.ACTION_STOCK_NOT_FOUND.equals(intent.getAction())){
+        if (QuoteSyncJob.ACTION_STOCK_NOT_FOUND.equals(intent.getAction())) {
             String symbol = intent.getStringExtra(QuoteSyncJob.STOCK_SYMBOL);
 
             String message = context.getString(R.string.not_a_stock) + ": " + symbol;

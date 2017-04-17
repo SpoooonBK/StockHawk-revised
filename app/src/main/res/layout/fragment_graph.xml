@@ -7,7 +7,6 @@
     >
 
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,11 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:text="@string/highlighted_value_header"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,11 +43,13 @@
                 android:orientation="vertical"
                 android:layout_weight="1"
                 android:gravity="center">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/date"
                     android:textAlignment="center"/>
+
                 <TextView
                     android:id="@+id/highlighted_date"
                     android:layout_width="wrap_content"
@@ -59,11 +62,13 @@
                 android:orientation="vertical"
                 android:layout_weight="1"
                 android:gravity="center">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/quote"
                     android:textAlignment="center"/>
+
                 <TextView
                     android:id="@+id/highlighted_quote"
                     android:layout_width="wrap_content"
@@ -166,7 +171,6 @@
             />
 
         </LinearLayout>
-
 
 
     </LinearLayout>

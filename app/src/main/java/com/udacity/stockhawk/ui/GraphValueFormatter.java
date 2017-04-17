@@ -11,10 +11,9 @@ import com.udacity.stockhawk.utilities.DateManager;
 public class GraphValueFormatter implements IAxisValueFormatter {
 
 
-
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
-        long timeInMillis =  (long) value;
+        long timeInMillis = (long) value;
         return DateManager.getMonthDateYearFormat(timeInMillis);
     }
 }
